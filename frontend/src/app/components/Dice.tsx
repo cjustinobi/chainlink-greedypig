@@ -45,9 +45,9 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
   const { data: hash, isPending, writeContract } = useWriteContract();
 
 
-  const joinGame = async () => {
+const joinGame = async () => {
 
-    console.log(address)
+console.log(address)
 
 const gameId = formatNumber(game[0])
     // if (wallet?.accounts[0].address) {

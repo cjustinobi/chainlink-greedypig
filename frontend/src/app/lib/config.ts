@@ -1,12 +1,12 @@
 'use client';
 
 import { http, createStorage, cookieStorage } from 'wagmi';
-import { sepolia, localhost } from 'wagmi/chains';
+import { sepolia, localhost, avalancheFuji } from 'wagmi/chains';
 import { Chain, getDefaultConfig } from '@rainbow-me/rainbowkit';
 
 const projectId = "f2d65ee57b31b15e06607ec98b2d4e4c";
 
-const supportedChains: Chain[] = [sepolia, localhost];
+const supportedChains: Chain[] = [sepolia, localhost, avalancheFuji];
 
 export const config = getDefaultConfig({
    appName: "WalletConnection",
