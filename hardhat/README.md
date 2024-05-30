@@ -6,7 +6,8 @@ Try running some of the following tasks:
 
 
 # Smart Contract Deployment
-The smart contract is deployed to polygon Amoy [0x40DB6Bee9CAe6F8F9DaFFA6a51fcA4c7A6AffF2C](https://amoy.polygonscan.com/address/0x40DB6Bee9CAe6F8F9DaFFA6a51fcA4c7A6AffF2C)
+The smart contract is deployed and verified on Avalanche Fuji Testnet
+ [0xAFebEe781DebfbD421a55c2d38AC8D036193350C](https://testnet.snowtrace.io/address/0xAFebEe781DebfbD421a55c2d38AC8D036193350C/contract/43113/code?chainId=43113)
 
 ```shell
 npx hardhat help
@@ -14,7 +15,7 @@ npx hardhat test
 REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat ignition deploy ./ignition/modules/GreedyPig.js
-npx hardhat ignition deploy ignition/modules/GreedyPig.js --network polygon_amoy --deployment-id amoy-deployment --verify
+npx hardhat ignition deploy ignition/modules/GreedyPig.js --network avalanche_fuji_testnet --deployment-id fuji-deployment --verify
 npx hardhat vars set ENVIRONMENT_VARIABLE 
-npx hardhat ignition verify amoy_deployment
+npx hardhat ignition verify avalanche_fuji_testnet
 ```

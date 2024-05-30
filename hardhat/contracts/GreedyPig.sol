@@ -220,6 +220,8 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
         return gameId;
     }
 
+    receive() external payable {}
+
     // chainlink VRF implementation
      function requestRandomWords(
         bool enableNativePayment
