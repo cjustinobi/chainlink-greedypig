@@ -7,16 +7,18 @@ import Settings from './Settings'
 import Dice from './Dice'
 import { useReadContract } from 'wagmi'
 import { wagmiContractConfig } from '@/lib/wagmi'
-
+import useGames from '@/hooks/useGames'
 // import { ethers } from 'ethers'
 // import { useDispatch } from 'react-redux'
 
 
 const GameArena = () => {
 // const GameArena = ({ params }: { params: { id: number } }) => {
-  
+  // const { games,isPending, error } = useGames()
+  // const [game, setGame] = useState()
   const gameId = window.location.pathname.split("/").pop();
-
+  // const game = games.find((game) => Number(game[0]) == Number(gameId))
+  
   const {
     data: game,
     isPending,

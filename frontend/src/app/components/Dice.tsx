@@ -12,6 +12,7 @@ import toast from 'react-hot-toast'
 import Button from './Button'
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
 import { wagmiContractConfig } from '@/lib/wagmi'
+import useGames from '@/hooks/useGames'
 
 const die = [Die1, Die2, Die3, Die4, Die5, Die6]
 
@@ -25,6 +26,7 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
   // const rollups = useRollups(dappAddress)
   // const [{ wallet }] = useConnectWallet()
   const diceRollSound = useAudio('/sounds/diceRoll.mp3')
+  const { gameIds } = useGames()
   // const players = useSelector((state: any) =>
   //   selectParticipantAddresses(state.games)
   // )
@@ -50,6 +52,7 @@ const joinGame = async () => {
 console.log(address)
 
 const gameId = formatNumber(game[0])
+console.log("gam", gameId )
     // if (wallet?.accounts[0].address) {
 
     //   const playerAddress = wallet.accounts[0].address
