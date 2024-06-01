@@ -31,6 +31,7 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
     }
 
     struct PlayerInfo {
+        address player;
         uint turnScore;
         uint totalScore;
         bool deposited;
@@ -84,8 +85,26 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
         keyHash =  _keyhash;
          s_subscriptionId = subscriptionId;
     }
+
+    modifier noReentrant() {
+        require(!locked, "No re-entrancy");
+        locked = true;
+        _;
+        locked = false;
+    }
+
+    modifier onlyCurrentPlayer(uint _gameId) {
+        Game storage game = games[_gameId];
+        require(game.players[game.currentPlayerIndex] == msg.sender, "It's not your turn");
+        _;
+    }
+
+    modifier validGameId(uint _gameId) {
+        require(_gameId > 0 && _gameId <= gameId, "Invalid game ID");
+        _;
+    }
     
-    function createGame(string memory _name, uint _targetScore, uint _stakemount) public {
+    function createGame(string memory _name, uint _targetScore, bool _bet, uint _stakemount) public {
         gameId++;
         Game storage game = games[gameId];
         game.gameId = gameId;
@@ -93,19 +112,20 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
         game.creator = msg.sender;
         game.targetScore = _targetScore;
         game.stakemount = _stakemount;
+        game.bet = _bet;
         createdGames[msg.sender].push(gameId);
         emit GameCreated(gameId, msg.sender);
     }
     
-    function joinGame(uint _gameId) public payable {
-        require(_gameId <= gameId, "Invalid game id");
+    function joinGame(uint _gameId) public payable validGameId(_gameId) {
+
         Game storage game = games[_gameId];
         require(!isParticipant(_gameId, msg.sender), "You have already joined this game");
         require(game.status == GameStatus.New, "Can't join at the moment");
         require(msg.value == game.stakemount, "Incorrect stake amount");
 
-        // game.participants[msg.sender];
         game.participants[msg.sender] = PlayerInfo({
+            player: msg.sender,
             turnScore: 0,
             totalScore: 0,
             deposited: true
@@ -117,8 +137,8 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
         emit PlayerJoined(_gameId, msg.sender);
     }
     
-    function rollDice(uint _gameId) public    {
-        require(_gameId <= gameId, "Invalid game id");
+    function rollDice(uint _gameId) public validGameId(_gameId) onlyCurrentPlayer(_gameId) {
+
         Game storage game = games[_gameId];
         require(game.players.length >= 2, "At least two players are required to start the game");
         require(!gameOver(game), "The game is over");
@@ -146,13 +166,14 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
                 game.status = GameStatus.Ended;
                 participant.totalScore += participant.turnScore;
                 game.winner = msg.sender;
+                transferToWinner(_gameId);
                 emit GameEnded(_gameId, msg.sender);
             }
 
         }
     }
     
-    function passTurn(uint _gameId) public  {
+    function passTurn(uint _gameId) public validGameId(_gameId) onlyCurrentPlayer(_gameId) {
         Game storage game = games[_gameId];
         PlayerInfo storage participant = game.participants[msg.sender];
         participant.totalScore += participant.turnScore ;
@@ -164,13 +185,15 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
         return game.status == GameStatus.Ended;
     }
 
-    function transferToWinner(uint _gameId) internal {
+    function transferToWinner(uint _gameId) internal noReentrant {
         Game storage game = games[_gameId];
         require(game.status == GameStatus.Ended, "Game is not ended yet");
         address payable winner = payable(game.winner);
-        uint prizeAmount = (game.stakemount * 90) / 100;
-        // Transfer prize to the winner
-        winner.transfer(prizeAmount);
+        uint prizeAmount = (game.stakemount * game.players.length * 90) / 100;
+
+        // Transfer prize to the winner with reentrancy protection
+        (bool success, ) = winner.call{ value: prizeAmount}("");
+        require(success, "Transfer failed");
     }
 
     function setNextPlayerIndex(uint _gameId) internal {
@@ -180,7 +203,7 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
         game.currentPlayerIndex = (game.currentPlayerIndex + 1) % game.players.length;
     }
 
-    function getGame(uint _gameId) public  view returns (
+    function getGame(uint _gameId) public view validGameId(_gameId) returns (
     uint id,
     string memory name,
     address creator,
@@ -192,8 +215,20 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
     uint currentPlayerIndex,
     address winner
     ) {
-        // require(_gameId <= gameId, "Invalid game id");
+
         Game storage game = games[_gameId];
+
+        PlayerInfo[] memory playerArray = new PlayerInfo[](game.players.length);
+        for (uint i = 0; i < game.players.length; i++) {
+            address playerAddress = game.players[i];
+            PlayerInfo storage player = game.participants[playerAddress];
+            playerArray[i] = PlayerInfo({
+                player: playerAddress,
+                turnScore: player.turnScore,
+                totalScore: player.totalScore,
+                deposited: player.deposited
+            });
+        }
 
         return (
             game.gameId,
@@ -205,7 +240,8 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
             game.bet,
             game.status,
             game.currentPlayerIndex,
-            game.winner
+            game.winner,
+            playerArray
         );
     }
 
