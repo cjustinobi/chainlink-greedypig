@@ -103,8 +103,15 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
         require(!isParticipant(_gameId, msg.sender), "You have already joined this game");
         require(game.status == GameStatus.New, "Can't join at the moment");
         require(msg.value == game.stakemount, "Incorrect stake amount");
+
+        // game.participants[msg.sender];
+        game.participants[msg.sender] = PlayerInfo({
+            turnScore: 0,
+            totalScore: 0,
+            deposited: true
+        });
+
         game.players.push(msg.sender); // used for player tracking.
-        game.participants[msg.sender];
         participatedGames[msg.sender].push(_gameId);
 
         emit PlayerJoined(_gameId, msg.sender);
