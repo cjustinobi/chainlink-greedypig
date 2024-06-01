@@ -9,6 +9,8 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
     // address public owner;
     uint public gameId;
 
+    bool internal locked;
+
     enum GameStatus {
         New,
         InProgress,
