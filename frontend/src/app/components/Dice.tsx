@@ -56,12 +56,12 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
     console.log("gam", gameId )
 
     setJoining(true)
-debugger
+
     writeContract({
       ...wagmiContractConfig,
       functionName: 'joinGame',
       args: [gameId],
-      value: toBigInt(1)
+      value: toBigInt(game[4])
     });
   }
 
@@ -76,6 +76,10 @@ debugger
 
   console.log(isConfirming);
   console.log(isConfirmed);
+
+  if (isConfirmed) {
+    setJoining(false)
+  }
 
   const rollDice = async () => {
     // try {
