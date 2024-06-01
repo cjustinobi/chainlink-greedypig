@@ -6,7 +6,7 @@ import Logo from '@/assets/img/logo.png'
 // import ConnectButton from '@/components/ui/ConnectButton'
 import Socials from '@/components/Socials'
 import { ConnectBtn } from '../ConnectButton'
-
+import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 const Header = () => {
   // const dispatch = useDispatch()
@@ -60,7 +60,7 @@ const Header = () => {
         <div className="-ml-8 hidden flex-col gap-2.5 sm:flex-row sm:justify-center lg:flex lg:justify-start">
           <div className="flex items-center gap-8">
             <Socials />
-            <ConnectBtn />
+            <ConnectButton/>
           </div>
         </div>
 

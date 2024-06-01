@@ -10,7 +10,7 @@ interface LeaderBoardProps {
 }
 
 const LeaderBoard: FC<LeaderBoardProps> = ({ game }) => {
-  const gameOverSound = useAudio('/sounds/gameOver.mp3')
+  // const gameOverSound = useAudio('/sounds/gameOver.mp3')
  
   const [delayedGame, setDelayedGame] = useState<any>(null)
 
@@ -40,11 +40,12 @@ const LeaderBoard: FC<LeaderBoardProps> = ({ game }) => {
 
   useEffect(() => {
     if (delayedGame?.status === 'Ended') {
-      gameOverSound?.play()
+      // gameOverSound?.play()
       toast.success(`${delayedGame.winner} won`)
       // transfer()
     }
-  }, [delayedGame?.status, delayedGame?.winner, gameOverSound])
+  }, [delayedGame?.status, delayedGame?.winner])
+  // }, [delayedGame?.status, delayedGame?.winner, gameOverSound])
 
 
   // useEffect(() => {

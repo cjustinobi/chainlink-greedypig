@@ -11,7 +11,7 @@ const Hero = () => {
 
   const modalHandler = () => {
     // if (!wallet) return toast.error('Connect Wallet to continue')
-    // dispatch({ type: 'modal/toggleGameModal' })
+    dispatch({ type: 'modal/toggleGameModal' })
   }
 
   return (

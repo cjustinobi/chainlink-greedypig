@@ -12,6 +12,8 @@ import toast from 'react-hot-toast'
 import Button from './Button'
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
 import { wagmiContractConfig } from '@/lib/wagmi'
+import useGames from '@/hooks/useGames'
+import { toBigInt } from 'ethers'
 
 const die = [Die1, Die2, Die3, Die4, Die5, Die6]
 
@@ -24,7 +26,8 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
 
   // const rollups = useRollups(dappAddress)
   // const [{ wallet }] = useConnectWallet()
-  const diceRollSound = useAudio('/sounds/diceRoll.mp3')
+  // const diceRollSound = useAudio('/sounds/diceRoll.mp3')
+  const { gameIds } = useGames()
   // const players = useSelector((state: any) =>
   //   selectParticipantAddresses(state.games)
   // )
@@ -49,23 +52,17 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
 
     console.log(address)
 
-const gameId = formatNumber(game[0])
-    // if (wallet?.accounts[0].address) {
+    const gameId = formatNumber(game[0])
+    console.log("gam", gameId )
 
-    //   const playerAddress = wallet.accounts[0].address
+    setJoining(true)
 
-
-
-      // const id = window.location.pathname.split('/').pop()
-      // if (!id) return toast.error('Game not found')
-
-      setJoining(true)
-
-      writeContract({
-        ...wagmiContractConfig,
-        functionName: 'joinGame',
-        args: [gameId],
-      });
+    writeContract({
+      ...wagmiContractConfig,
+      functionName: 'joinGame',
+      args: [gameId],
+      value: toBigInt(game[4])
+    });
   }
 
    if (hash) {
@@ -77,7 +74,12 @@ const gameId = formatNumber(game[0])
       hash,
     });
 
+  console.log(isConfirming);
   console.log(isConfirmed);
+
+  if (isConfirmed) {
+    setJoining(false)
+  }
 
   const rollDice = async () => {
     // try {

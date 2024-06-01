@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Logo from '@/assets/img/logo.png'
 import { ConnectBtn } from '@/components/ConnectButton'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 const GameHeader = () => {
 
@@ -27,7 +28,7 @@ const GameHeader = () => {
 
         <div className="-ml-8 hidden flex-col gap-2.5 sm:flex-row sm:justify-center lg:flex lg:justify-start">
           <div className="flex items-center gap-8">
-            {<ConnectBtn />}
+          <ConnectButton/>
           </div>
         </div>
         {/* <div className="lg-hidden">

@@ -29,7 +29,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Link href="/games">GAmes</Link>
         <Providers>
           {children}
           <CreateGameModal />

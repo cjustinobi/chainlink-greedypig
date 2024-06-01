@@ -5,8 +5,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { selectGameModal } from '@/features/modal/modalSlice'
 import toast from 'react-hot-toast'
 import { GameStatus } from '@/interfaces'
-
+import { useAccount, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { wagmiContractConfig } from "../lib/wagmi";
 import Button from '@/components/Button'
+import { parseEther } from 'viem'
+
 
 
 const CreateGameModal = () => {
@@ -16,71 +19,53 @@ const CreateGameModal = () => {
     selectGameModal(state.modal)
   )
   
-
   const [creator, setCreator] = useState<string | undefined>('')
   const [gameName, setGameName] = useState<string>('')
-  const [winningScore, setWinningScore] = useState<number>(20)
-  const [bettingAmount, setBettingAmoun] = useState<string>('0.02')
+  const [winningScore, setWinningScore] = useState<number>(0)
+  const [bettingAmount, setBettingAmount] = useState<string>("0")
   const [bet, setBet] = useState<boolean>(false)
-  const [loading, setLoading] = useState<boolean>(false)
+  const [selectedValue, setSelectedValue] = useState<string>("")
 
-  const game = {
-    creator,
-    activePlayer: '',
-    gameName,
-    commitPhase: false,
-    revealPhase: false,
-    participants: [],
-    gameSettings: {
-      numbersOfTurn: 2,
-      winningScore: winningScore,
-      mode: 'score',
-      apparatus: 'dice',
-      bet: false,
-      maxPlayer: 10,
-      limitNumberOfPlayer: true,
+  const { data: hash,  writeContract } = useWriteContract();
+
+  const createGame = async (e: FormEvent) => {
+      if(!gameName) return toast.error("Game name required")
+      if(!winningScore && winningScore < 6 ) return toast.error("Winning score required and should be greater than 6")
+      if(!selectedValue) return toast.error("Staking options required!")
+      if(selectedValue === "yes" && !bettingAmount) return toast.error("Field required!")
+      e.preventDefault()
+
+      writeContract({
+      ...wagmiContractConfig,
+      functionName: "createGame",
+      args: [gameName, winningScore, parseEther(bettingAmount)],
+    });
+  }
+
+  const { isLoading} =
+    useWaitForTransactionReceipt({
+      hash,
+    }); 
+
+  const stakeOptions = [
+    {
+      label: "Yes",
+      value: "yes"
     },
-    status: GameStatus.New,
-    rollOutcome: 0,
-    rollCount: 0,
-    winner: '',
-    bettingAmount, // in ether
-    bettingFund: 0, // total fund transfered by players
-    paidOut: false
-  }
+    {
+      label: "No",
+      value: "no"
+    },
+  ]
 
-  const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-
-    setLoading(true)
-    try {
-      setLoading(true)
-      await createGameHandler()
-      reset()
-      setLoading(false)
-      toast.success('Game created successfully')
-    } catch (error) {
-      console.log('send game error: ', error)
-      setLoading(false)
+  const handleOptionChange = (value: string) => {
+    if(value == "yes"){
+      setBet(true)
+      setSelectedValue("yes")
+    }else{
+      setBet(false)
+      setSelectedValue("no")
     }
-  }
-
-  const createGameHandler = async () => {
-    game.gameName = gameName
-    game.gameSettings.winningScore = winningScore
-    game.gameSettings.bet = bet
-    game.bettingAmount = bettingAmount
-
-    const jsonPayload = JSON.stringify({
-      method: 'createGame',
-      data: game,
-    })
-
-
-  }
-
-  const handleOptionChange = (value: boolean) => {
-    setBet(value)
   }
 
   const reset = () => {
@@ -106,9 +91,9 @@ const CreateGameModal = () => {
         createGameForm ? '' : 'hidden'
       } inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" id="my-modal`}
     >
-      <form
+      <div
         className="mx-auto mt-10 w-[38rem] p-5 bg-gray-700 rounded-lg relative"
-        onSubmit={submitHandler}
+        // onSubmit={createGame}
       >
         <button
           onClick={reset}
@@ -142,6 +127,7 @@ const CreateGameModal = () => {
           <input
             required
             onChange={(e) => setGameName(e.target.value)}
+            value={gameName}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             id="name"
             type="text"
@@ -158,6 +144,7 @@ const CreateGameModal = () => {
           </label>
           <input
             onChange={(e) => setWinningScore(parseInt(e.target.value))}
+            value={winningScore}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             id="winningScore"
             type="number"
@@ -182,26 +169,21 @@ const CreateGameModal = () => {
 
         <div className="mb-4">
           <span className="block">Stake Game?</span>
-          <label className="inline-flex items-center">
-            <input
-              type="radio"
-              className="form-radio"
-              name="accountType"
-              disabled
-              onChange={() => handleOptionChange(true)}
-            />
-            <span className="ml-2">Yes</span>
-          </label>
-          <label className="inline-flex items-center ml-6">
-            <input
-              type="radio"
-              className="form-radio"
-              name="accountType"
-              checked
-              onChange={() => handleOptionChange(false)}
-            />
-            <span className="ml-2">No</span>
-          </label>
+
+          {stakeOptions.map((option, index) => 
+          <div className='inline-flex items-center mr-2'>
+              <input
+                key={index}
+                type="radio"
+                className="form-radio mr-2"
+                name={option.label}
+                value={option.value}
+                checked = {selectedValue == option.value}
+                onChange={() => handleOptionChange(option.value)}
+              />
+             <label className='inline'>{option.label} </label>
+          </div>            
+            )}
         </div>
 
         {bet && (
@@ -213,7 +195,8 @@ const CreateGameModal = () => {
               Staking Amount
             </label>
             <input
-              onChange={(e) => setBettingAmoun(e.target.value)}
+              onChange={(e) => setBettingAmount(e.target.value)}
+              value={bettingAmount}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="bettingAmount"
               type="number"
@@ -269,13 +252,13 @@ const CreateGameModal = () => {
             <span className="ml-2">Score Based</span>
           </label>
         </div>
-
+        {/* <button className="w-[200px]" onClick={createGame}>{isLoading ? 'Creating ...' : 'Create Game'}</button> */}
         <div className="flex items-center justify-between">
-          {/* <Button disabled={loading} className="w-[200px]" type="submit">
-            {loading ? 'Creating ...' : 'Create Game'}
-          </Button> */}
+          <Button className="w-[200px]" onClick={createGame}>
+            {isLoading ? 'Creating ...' : 'Create Game'}
+          </Button>
         </div>
-      </form>
+      </div>
     </div>
   )
 }

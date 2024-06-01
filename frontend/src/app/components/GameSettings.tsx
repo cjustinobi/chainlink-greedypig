@@ -1,13 +1,13 @@
 import { useEffect } from 'react'
 
 const Sidebar = () => {
-  useEffect(() => {
-    const init = async () => {
-      const { Modal, Ripple, initTE } = await import('tw-elements')
-      initTE({ Modal, Ripple })
-    }
-    init()
-  }, [])
+  // useEffect(() => {
+  //   const init = async () => {
+  //     const { Modal, Ripple, initTE } = await import('tw-elements')
+  //     initTE({ Modal, Ripple })
+  //   }
+  //   init()
+  // }, [])
 
   return (
     <div>

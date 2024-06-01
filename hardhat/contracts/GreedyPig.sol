@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-contract GreedyPig {
+import { VRFConsumerBaseV2Plus } from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
+import { VRFV2PlusClient } from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 
-    address public owner;
+contract GreedyPig is VRFConsumerBaseV2Plus {
+
+    // address public owner;
     uint public gameId;
 
     enum GameStatus {
@@ -12,7 +15,6 @@ contract GreedyPig {
         Ended 
     }
 
-    
     struct Game {
         uint gameId;
         string name;
@@ -42,14 +44,45 @@ contract GreedyPig {
     event PlayerJoined(uint indexed gameId, address indexed player);
     event PlayerRoll(uint indexed gameId, address indexed player, uint roll);
     event GameEnded(uint indexed gameId, address indexed winner);
-    
-    constructor() {
-        owner = msg.sender;
+
+
+    // chainlink
+    event RequestSent(uint256 requestId, uint32 numWords);
+    event RequestFulfilled(uint256 requestId, uint256[] randomWords);
+
+    struct RequestStatus {
+        bool fulfilled; // whether the request has been successfully fulfilled
+        bool exists; // whether a requestId exists
+        uint256[] randomWords;
     }
+    mapping(uint256 => RequestStatus)
+        public s_requests; /* requestId --> requestStatus */
+
+    // Your subscription ID.
+    uint256 public s_subscriptionId;
+
+    // Past request IDs.
+    uint256[] public requestIds;
+    uint256 public lastRequestId;
+    bytes32 public keyHash;
+
+     uint32 public callbackGasLimit = 100000;
+
+    // The default is 3, but you can set this higher.
+    uint16 public requestConfirmations = 3;
+
+    // retrieve 1 random values in one request.
+    uint32 public numWords = 1;
+
     
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only the owner can call this function");
-        _;
+    constructor(
+        bytes32 _keyhash, 
+        uint256 subscriptionId, 
+        address _VRFConsumerBaseV2Plus) 
+        VRFConsumerBaseV2Plus(_VRFConsumerBaseV2Plus) {  
+
+        keyHash =  _keyhash;
+         s_subscriptionId = subscriptionId;
     }
     
     function createGame(string memory _name, uint _targetScore, uint _stakemount) public {
@@ -70,8 +103,15 @@ contract GreedyPig {
         require(!isParticipant(_gameId, msg.sender), "You have already joined this game");
         require(game.status == GameStatus.New, "Can't join at the moment");
         require(msg.value == game.stakemount, "Incorrect stake amount");
+
+        // game.participants[msg.sender];
+        game.participants[msg.sender] = PlayerInfo({
+            turnScore: 0,
+            totalScore: 0,
+            deposited: true
+        });
+
         game.players.push(msg.sender); // used for player tracking.
-        game.participants[msg.sender];
         participatedGames[msg.sender].push(_gameId);
 
         emit PlayerJoined(_gameId, msg.sender);
@@ -87,7 +127,7 @@ contract GreedyPig {
             game.status = GameStatus.InProgress;
         }
         
-        uint roll = generateRandomNumber(); // Simulated roll of a six-sided die
+        uint roll = getRandomNumber(); // Simulated roll of a six-sided die
         game.rollOutcome = roll;
 
         emit PlayerRoll(_gameId, msg.sender, roll);
@@ -120,8 +160,6 @@ contract GreedyPig {
         setNextPlayerIndex(_gameId);
     }
     
-
-    
     function gameOver(Game storage game) private view returns (bool) {
         return game.status == GameStatus.Ended;
     }
@@ -131,7 +169,6 @@ contract GreedyPig {
         require(game.status == GameStatus.Ended, "Game is not ended yet");
         address payable winner = payable(game.winner);
         uint prizeAmount = (game.stakemount * 90) / 100;
-
         // Transfer prize to the winner
         winner.transfer(prizeAmount);
     }
@@ -141,10 +178,6 @@ contract GreedyPig {
         require(game.status == GameStatus.InProgress, "Game not in progress");
         require(game.players.length > 0, "No players in the game");
         game.currentPlayerIndex = (game.currentPlayerIndex + 1) % game.players.length;
-    }
-    
-    function generateRandomNumber() private view returns (uint) {
-        return uint(keccak256(abi.encodePacked(block.timestamp, block.difficulty))) % 6 + 1;
     }
 
     function getGame(uint _gameId) public  view returns (
@@ -176,8 +209,6 @@ contract GreedyPig {
         );
     }
 
-
-
     function getBalance() public view returns(uint256) {
         return address(this).balance;
     }
@@ -194,6 +225,64 @@ contract GreedyPig {
 
     function getGameId() view external returns(uint) {
         return gameId;
+    }
+
+    receive() external payable {}
+
+    // chainlink VRF implementation
+     function requestRandomWords(
+        bool enableNativePayment
+    ) public onlyOwner returns (uint256 requestId) {
+        // Will revert if subscription is not set and funded.
+        requestId = s_vrfCoordinator.requestRandomWords(
+            VRFV2PlusClient.RandomWordsRequest({
+                keyHash: keyHash,
+                subId: s_subscriptionId,
+                requestConfirmations: requestConfirmations,
+                callbackGasLimit: callbackGasLimit,
+                numWords: numWords,
+                extraArgs: VRFV2PlusClient._argsToBytes(
+                    VRFV2PlusClient.ExtraArgsV1({
+                        nativePayment: enableNativePayment
+                    })
+                )
+            })
+        );
+        s_requests[requestId] = RequestStatus({
+            randomWords: new uint256[](0),
+            exists: true,
+            fulfilled: false
+        });
+        requestIds.push(requestId);
+        lastRequestId = requestId;
+        emit RequestSent(requestId, numWords);
+        return requestId;
+    }
+
+    function fulfillRandomWords(
+        uint256 _requestId,
+        uint256[] calldata _randomWords
+    ) internal override {
+        require(s_requests[_requestId].exists, "request not found");
+        s_requests[_requestId].fulfilled = true;
+        uint256 randomNumber = _randomWords[0] % 6 + 1; // Generate number between 1 and 6
+        s_requests[_requestId].randomWords[0] = randomNumber;
+        emit RequestFulfilled(_requestId, _randomWords);
+    }
+
+    function getRequestStatus(
+        uint256 _requestId
+    ) public view returns (bool fulfilled, uint256[] memory randomWords) {
+        require(s_requests[_requestId].exists, "request not found");
+        RequestStatus memory request = s_requests[_requestId];
+        return (request.fulfilled, request.randomWords);
+    }
+
+    function getRandomNumber() private returns (uint256 randomNumber) {
+       uint256 requestId =  requestRandomWords(false);
+       (bool fulfilled, uint256[] memory randomWords) = getRequestStatus(requestId);
+       require(randomWords.length > 0, "no random words available");
+       if(fulfilled) return randomWords[0];
     }
 
 }
