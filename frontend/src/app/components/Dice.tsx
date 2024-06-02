@@ -81,6 +81,8 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
     
   }
 
+  const pass = async () => {};
+
   const playGame = async () => {
 
     if (MAP_GAME_STATUS(game[7]) === 'ended') {
@@ -95,13 +97,14 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
   
   }
 
-  useWatchContractEvent({
-    ...wagmiContractConfig,
-    eventName: "PlayerRoll",
-    onLogs(logs) {
+
+    useWatchContractEvent({
+      ...wagmiContractConfig,
+      eventName: "PlayerRoll",
+      onLogs(logs) {
       console.log("player roilled!", logs);
-    },
-  });
+      },
+    });
 
   useWatchContractEvent({
     ...wagmiContractConfig,
@@ -146,40 +149,43 @@ useEffect(() => {
       </button>
 
       <div className="flex flex-col justify-center">
-     
-        {/* {game &&
-          game.status === 'In Progress' &&
-
-          game?.activePlayer === address &&
-  (
+        {game &&
+          game[7] === 1 &&
+          game[10].some(
+            (participant: any) => participant.player === address
+          ) && (
             <div className="flex justify-center">
-              <Button className="mt-6" onClick={() => playGame('no')}>
+              <Button className="mt-6" onClick={pass}>
                 Pass
               </Button>
             </div>
-          )} */}
-        {game &&
-          game[7] === 0 &&
-          (
-            <div className="flex justify-center">
-              <Button
-                disabled={joinPending || game[10].some(
-                  (participant: any) =>
-                    participant.player === address
-                )}
-              onClick={joinGame} className="mb-10" type="button">
-                {joinPending ? 'Joining ...' : game[10].some(
-                (participant: any) =>
-                  participant.player === address
-              ) ? 'Joined' : 'Join Game'}
-              </Button>
-            </div>
           )}
-       
-
+        {game && game[7] === 0 && (
+          <div className="flex justify-center">
+            <Button
+              disabled={
+                joinPending ||
+                game[10].some(
+                  (participant: any) => participant.player === address
+                )
+              }
+              onClick={joinGame}
+              className="mb-10"
+              type="button"
+            >
+              {joinPending
+                ? "Joining ..."
+                : game[10].some(
+                    (participant: any) => participant.player === address
+                  )
+                ? "Joined"
+                : "Join Game"}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
-  )
+  );
 }
 
 export default Dice

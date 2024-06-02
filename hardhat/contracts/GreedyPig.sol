@@ -213,9 +213,9 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
     uint rollOutcome,
     bool bet,
     GameStatus status,
-    uint currentPlayerIndex,
     address winner,
-    PlayerInfo[] memory players
+    PlayerInfo[] memory players,
+    address activePlayer
     ) {
 
         Game storage game = games[_gameId];
@@ -241,9 +241,9 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
             game.rollOutcome,
             game.bet,
             game.status,
-            game.currentPlayerIndex,
             game.winner,
-            playerArray
+            playerArray,
+            game.players[game.currentPlayerIndex]
         );
     }
 
