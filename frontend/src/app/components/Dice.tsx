@@ -10,7 +10,12 @@ import useAudio from '@/hooks/useAudio'
 import { MAP_GAME_STATUS, formatNumber } from '@/lib/utils'
 import toast from 'react-hot-toast'
 import Button from './Button'
-import { useAccount, useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
+import {
+  useAccount,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+  useWatchContractEvent,
+} from "wagmi";
 import { wagmiContractConfig } from '@/lib/wagmi'
 import useGames from '@/hooks/useGames'
 import { toBigInt } from 'ethers'
@@ -65,8 +70,10 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
 
     // const { isLoading: rollLoading, isSuccess: rollSuccess } =
     // useWaitForTransactionReceipt({
-    //   hash,
+    //   playHash,
     // });
+
+    console.log('playhash ', playHash)
 
 
   const rollDice = async () => {
@@ -87,6 +94,22 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
     });
   
   }
+
+  useWatchContractEvent({
+    ...wagmiContractConfig,
+    eventName: "PlayerRoll",
+    onLogs(logs) {
+      console.log("player roilled!", logs);
+    },
+  });
+
+  useWatchContractEvent({
+    ...wagmiContractConfig,
+    eventName: "PlayerJoined",
+    onLogs(logs) {
+      console.log("player joined!", logs);
+    },
+  });
 
 console.log(game)
 
