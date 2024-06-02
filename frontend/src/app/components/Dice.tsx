@@ -45,7 +45,7 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
   const [gameEnded, setGameEnded] = useState<boolean>(false)
 
   const { address } = useAccount();
-  const { data: hash, isPending, writeContract } = useWriteContract();
+  const { data: hash, error: joinError, isPending, writeContract } = useWriteContract();
 
 
   const joinGame = async () => {
@@ -73,6 +73,11 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
     useWaitForTransactionReceipt({
       hash,
     });
+
+    if (joinError) {
+      setJoining(false)
+      console.log('joinerror ',   joinError)
+    }
 
   console.log(isConfirming);
   console.log(isConfirmed);
@@ -257,56 +262,13 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
   // }
 
 
-  // useEffect(() => {
-  //   console.log('inside reveal useeffect')
-  //   if (game && game.participants && game.participants.length > 0) {
-  //     const allPlayersCommitted = game?.participants.every((participant: any) => {
-  //       return participant.commitment
-  //     })
-
-  //     if (allPlayersCommitted) {
-  //       toast.success('All set to reveal!')
-  //       setRevealMove(true)
-  //     }
-  //   }
-  // }, [game?.participants.map((participant: any) => participant.commitment).join(',')])
-
-  // useEffect(() => {
-  //    console.log('inside all moved useeffect')
-  //   if (game && game.participants && game.participants.length > 0) {
-  //     const allPlayersMoved = game?.participants.every((participant: any) => {
-  //       return participant.move
-  //     })
-
-  //     if (allPlayersMoved) {
-  //       toast.success('Dice set to roll!')
-  //       setCanRollDice(true)
-  //       setRevealMove(false)
-  //     }
-  //   }
-  // }, [game?.participants.map((participant: any) => participant.move).join(',')])
+ 
 
 
   // useEffect(() => {
   //   setRollCount((prevCount) => prevCount + 1)
   // }, [result])
 
-  // useEffect(() => {
-  //   const checkDeposit = async () => {
-  //     if (wallet?.accounts[0].address && game.gameSettings.bet) {
-  //       const playerAddress = wallet.accounts[0].address
-  //       const reports = await inspectCall(
-  //         `balance/${playerAddress}`,
-  //         connectedChain
-  //       )
-
-  //       const hasUserDeposited = hasDeposited(game.bettingAmount, reports)
-  //       setDeposited(hasUserDeposited)
-  //     }
-  //   }
-
-  //   checkDeposit()
-  // }, [wallet, game?.gameSettings.bet, connectedChain])
 
   // useEffect(() => {
   //   if (canRollDice) {
@@ -345,7 +307,7 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
   //     setGameEnded(true)
   //    }
   //  }, [game?.status, game?.winner])
-
+console.log(game)
 
   return (
     <div className="flex flex-col justify-center">
@@ -395,8 +357,16 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
           game[7] === 0 &&
           (
             <div className="flex justify-center">
-              <Button onClick={joinGame} className="mb-10" type="button">
-                {joining ? 'Joining ...' : 'Join Game'}
+              <Button
+                disabled={joining || game[10].some(
+                  (participant: any) =>
+                    participant.player === address
+                )}
+              onClick={joinGame} className="mb-10" type="button">
+                {joining ? 'Joining ...' : game[10].some(
+                (participant: any) =>
+                  participant.player === address
+              ) ? 'Joined' : 'Join Game'}
               </Button>
             </div>
           )}

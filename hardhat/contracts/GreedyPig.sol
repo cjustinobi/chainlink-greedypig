@@ -215,7 +215,8 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
     bool bet,
     GameStatus status,
     uint currentPlayerIndex,
-    address winner
+    address winner,
+    PlayerInfo[] memory players
     ) {
 
         Game storage game = games[_gameId];

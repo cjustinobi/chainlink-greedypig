@@ -2,7 +2,7 @@ import LeaderBoard from './Leaderboard'
 import { dappAddress, shortenAddress } from '@/lib/utils'
 
 
-import { memo, useCallback, useEffect, useState } from 'react'
+import {useMemo, memo, useCallback, useEffect, useState } from 'react'
 import Settings from './Settings'
 import Dice from './Dice'
 import { useReadContract } from 'wagmi'
@@ -16,24 +16,39 @@ const GameArena = () => {
 // const GameArena = ({ params }: { params: { id: number } }) => {
   // const { games,isPending, error } = useGames()
   // const [game, setGame] = useState()
-  const gameId = window.location.pathname.split("/").pop();
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
+  const gameId = useMemo(() => window.location.pathname.split("/").pop(), []);
   // const game = games.find((game) => Number(game[0]) == Number(gameId))
   
   const {
     data: game,
     isPending,
     error,
+    isError
   } = useReadContract({
     ...wagmiContractConfig,
     functionName: "getGame",
     args: [gameId],
   });
 
+  // useEffect(() => {
+  //   if (isPending) {
+  //     setLoading(true);
+  //   } else if (error) {
+  //     setFetchError(error);
+  //     setLoading(false);
+  //   } else if (game) {
+  //     setGameData(game);
+  //     setLoading(false);
+  //   }
+  // }, [game, isPending, error]);
+
   if (isPending) return <div>Loading...</div>;
 
   if (error) return <div>Error: {error.shortMessage || error.message}</div>;
-
-  console.log("result ", game);
+  if(isError)console.log(error)
+  // console.log("result ", game);
 
   // const dispatch = useDispatch()
 

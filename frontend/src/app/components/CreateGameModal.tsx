@@ -8,7 +8,7 @@ import { GameStatus } from '@/interfaces'
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { wagmiContractConfig } from "../lib/wagmi";
 import Button from '@/components/Button'
-import { parseEther } from 'viem'
+import { parseEther, parseUnits } from 'viem'
 
 
 
@@ -26,20 +26,30 @@ const CreateGameModal = () => {
   const [bet, setBet] = useState<boolean>(false)
   const [selectedValue, setSelectedValue] = useState<string>("")
 
-  const { data: hash,  writeContract } = useWriteContract();
+  const { data: hash, isError, error, writeContract } = useWriteContract();
 
   const createGame = async (e: FormEvent) => {
+    try{
       if(!gameName) return toast.error("Game name required")
-      if(!winningScore && winningScore < 6 ) return toast.error("Winning score required and should be greater than 6")
-      if(!selectedValue) return toast.error("Staking options required!")
-      if(selectedValue === "yes" && !bettingAmount) return toast.error("Field required!")
-      e.preventDefault()
+        if(!winningScore && winningScore < 6 ) return toast.error("Winning score required and should be greater than 6")
+        if(!selectedValue) return toast.error("Staking options required!")
+        if(selectedValue === "yes" && !bettingAmount) return toast.error("Field required!")
+        e.preventDefault()
+  
+        writeContract({
+        ...wagmiContractConfig,
+        functionName: "createGame",
+        args: [gameName, winningScore, bet, parseEther(bettingAmount)],
+      });
 
-      writeContract({
-      ...wagmiContractConfig,
-      functionName: "createGame",
-      args: [gameName, winningScore, parseEther(bettingAmount)],
-    });
+    }catch(error){
+      console.log(error)
+    }
+
+  }
+
+  if(isError) {
+    console.log(error)
   }
 
   const { isLoading} =

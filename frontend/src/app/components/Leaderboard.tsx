@@ -16,14 +16,14 @@ const LeaderBoard: FC<LeaderBoardProps> = ({ game }) => {
 
 
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setDelayedGame(game)
-    }, 4000)
-    return () => clearTimeout(timeoutId)
-  }, [game])
+  // useEffect(() => {
+  //   const timeoutId = setTimeout(() => {
+  //     setDelayedGame(game)
+  //   }, 4000)
+  //   return () => clearTimeout(timeoutId)
+  // }, [game])
 
-  const currentGame = delayedGame || game
+  // const currentGame = delayedGame || game
 
   // const handleEvent = useCallback(async () => {
   //   await refetch()
@@ -38,13 +38,13 @@ const LeaderBoard: FC<LeaderBoardProps> = ({ game }) => {
   //   )
   // }, [handleEvent, rollups])
 
-  useEffect(() => {
-    if (delayedGame?.status === 'Ended') {
-      // gameOverSound?.play()
-      toast.success(`${delayedGame.winner} won`)
-      // transfer()
-    }
-  }, [delayedGame?.status, delayedGame?.winner])
+  // useEffect(() => {
+  //   if (delayedGame?.status === 'Ended') {
+  //     // gameOverSound?.play()
+  //     toast.success(`${delayedGame.winner} won`)
+  //     // transfer()
+  //   }
+  // }, [delayedGame?.status, delayedGame?.winner])
   // }, [delayedGame?.status, delayedGame?.winner, gameOverSound])
 
 
@@ -60,17 +60,17 @@ const LeaderBoard: FC<LeaderBoardProps> = ({ game }) => {
     <div className="relative flex flex-col w-full min-w-0 break-words border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border mb-4 draggable">
       <div className="p-6 pb-0 mb-0 rounded-t-2xl">
         <h1 className="font-bold text-2xl mb-10">
-          {currentGame[1]} Leaderboard
+          {game[1]} Leaderboard
         </h1>
         <span>
           Winning score:{' '}
           <span className="font-bold">
-            {currentGame?.gameSettings?.winningScore}
+            {/* {game[]} */}
           </span>
         </span>
       </div>
 
-      {currentGame && currentGame.participants?.length ? (
+      {game && game[10].length ? (
         <div className="flex-auto px-0 pt-0 pb-2">
           <div className="p-0 overflow-x-auto">
             <table className="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
@@ -79,9 +79,7 @@ const LeaderBoard: FC<LeaderBoardProps> = ({ game }) => {
                   <th className="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
                     Player
                   </th>
-                  <th className="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
-                    Move
-                  </th>
+                  
                   <th className="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
                     Turn Score
                   </th>
@@ -91,8 +89,8 @@ const LeaderBoard: FC<LeaderBoardProps> = ({ game }) => {
                 </tr>
               </thead>
               <tbody>
-                {currentGame.participants.length &&
-                  currentGame.participants.map((player: any, i: number) => (
+                {game[10].length &&
+                  game[10].map((player: any, i: number) => (
                     <tr key={i}>
                       {/* <tr key={i} className={player.username === activePlayer ? 'bg-gray-100' : ''}> */}
                       <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
@@ -106,24 +104,20 @@ const LeaderBoard: FC<LeaderBoardProps> = ({ game }) => {
                           </div>
                           <div className="flex flex-col justify-center">
                             <h6 className="mb-0 leading-normal text-sm">
-                              {shortenAddress(player.address)}
+                              {shortenAddress(player.player)}
                             </h6>
                           </div>
                         </div>
                       </td>
-                      <td className="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                        <p className="mb-0 font-semibold leading-tight text-xs">
-                          {currentGame.revealPhase && player.move ? player.move : 'No move yet'}
-                        </p>
-                      </td>
+                      
                       <td className="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                         <span className="font-semibold leading-tight text-xs text-slate-400">
-                          {player.playerInfo?.turnScore}
+                          {Number(player.turnScore)}
                         </span>
                       </td>
                       <td className="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                         <span className="font-semibold leading-tight text-xs text-slate-400">
-                          {player.playerInfo?.totalScore}
+                          {Number(player.totalScore)}
                         </span>
                       </td>
                     </tr>
