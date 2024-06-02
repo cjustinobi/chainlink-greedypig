@@ -6,7 +6,6 @@ import { VRFV2PlusClient } from "@chainlink/contracts/src/v0.8/vrf/dev/libraries
 
 contract GreedyPig is VRFConsumerBaseV2Plus {
 
-    // address public owner;
     uint public gameId;
 
     bool internal locked;
@@ -271,7 +270,7 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
     // chainlink VRF implementation
      function requestRandomWords(
         bool enableNativePayment
-    ) public onlyOwner returns (uint256 requestId) {
+    ) public returns (uint256 requestId) {
         // Will revert if subscription is not set and funded.
         requestId = s_vrfCoordinator.requestRandomWords(
             VRFV2PlusClient.RandomWordsRequest({

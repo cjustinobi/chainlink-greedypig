@@ -24,8 +24,6 @@ interface ApparatusProps {
 
 const Dice: FC<ApparatusProps> = ({ game }) => {
 
-  // const rollups = useRollups(dappAddress)
-  // const [{ wallet }] = useConnectWallet()
   // const diceRollSound = useAudio('/sounds/diceRoll.mp3')
   const { gameIds } = useGames()
   // const players = useSelector((state: any) =>
@@ -35,17 +33,12 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
   const [rollCount, setRollCount] = useState<number>(0)
   const [isRolling, setIsRolling] = useState<boolean>(false)
   const [result, setResult] = useState<number>(1)
-  const [revealMove, setRevealMove] = useState<boolean>(false)
-  const [revealing, setRevealing] = useState<boolean>(false)
-  const [commiting, setCommiting] = useState<boolean>(false)
-  const [revealed, setRevealed] = useState<boolean>(false)
   const [canRollDice, setCanRollDice] = useState<boolean>(false)
-  const [deposited, setDeposited] = useState<boolean>(false)
   const [joining, setJoining] = useState<boolean>(false)
   const [gameEnded, setGameEnded] = useState<boolean>(false)
 
   const { address } = useAccount();
-  const { data: hash, error: joinError, writeContract } = useWriteContract();
+  const { data: hash, error: joinError, isPending: joinPending, writeContract } = useWriteContract();
   const { data: playHash, error: playError, writeContract: playContract } = useWriteContract();
 
 
@@ -54,9 +47,8 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
     console.log(address)
 
     const gameId = formatNumber(game[0])
-    console.log("gam", gameId )
-
-    setJoining(true)
+    
+  
 
     writeContract({
       ...wagmiContractConfig,
@@ -66,51 +58,19 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
     });
   }
 
-   if (hash) {
-    console.log('tx hash ', hash);
-   }
+
 
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
       hash,
     });
 
-    if (joinError) {
-      setJoining(false)
-      console.log('joinerror ',   joinError)
-    }
 
-  console.log(isConfirming);
-  console.log(isConfirmed);
 
-  if (isConfirmed) {
-    setJoining(false)
-  }
 
   const rollDice = async () => {
-    // try {
-    //   const jsonPayload = JSON.stringify({
-    //     method: 'rollDice',
-    //     data: {
-    //       gameId: game.id,
-    //       playerAddress: game.activePlayer,
-    //     },
-    //   })
+   
 
-    //   if (game.activePlayer === wallet?.accounts[0].address) {
-    //     const tx = await addInput(
-    //       JSON.stringify(jsonPayload),
-    //       dappAddress,
-    //       rollups
-    //     )
-
-    //     const result = await tx.wait(1)
-    //     // reset()
-    //     console.log('tx for the game roll', result)
-    //   }
-    // } catch (error) {
-    //   console.error('Error during game roll:', error)
-    // }
   }
 
   const playGame = async (response: string) => {
@@ -122,165 +82,28 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
     playContract({
       ...wagmiContractConfig,
       functionName: 'rollDice',
-      args: [game[0]],
-      value: toBigInt(game[4])
+      args: [game[0]]
     });
   
   }
 
+console.log(game)
+
+useEffect(() => {
+  if (joinError) {
+    console.log('joinerror ', joinError)
+  }
+  if (isConfirmed) {
+    toast.success('Successfully joined')
+  }
+}, [joinError, isConfirmed])
+
+useEffect(() => {
   if (playError) {
     console.log(playError)
     toast.error('playError')
   }
-
-
-  const commit = async () => {
-    // const playerAddress = wallet?.accounts[0].address
-    // if (!playerAddress) return toast.error('Connect account')
-
-      // Ensure user has not commited before
-      // const currentPlayer = game?.participants.find(
-      //   (participant: any) => participant.address === playerAddress)
-
-      // if (currentPlayer.commitment) return toast.error('Already commited')
-
-    // const jsonPayload = JSON.stringify({
-    //   method: 'commit',
-    //   gameId: game.id,
-    //   commitment: await generateCommitment(playerAddress)
-    // })
-
-    // setCommiting(true)
-    // const tx = await addInput(JSON.stringify(jsonPayload), dappAddress, rollups)
-    // const res = await tx.wait(1)
-    // if (res) {
-    //   setCommiting(false)
-    //   toast.success('Move committed successfully!')
-    // }
-  }
-
-  // const reveal = async () => {
-
-  //   const playerAddress = wallet?.accounts[0].address
-
-  //   if (playerAddress && !players.includes(playerAddress)) return toast.error('You are not a player')
-
-  //     const currentPlayer = game?.participants.find(
-  //       (participant: any) => participant.address === playerAddress
-  //     )
-
-  //   if (currentPlayer.move) return toast.error('Already revealed')
-    
-  //   setRevealing(true)
-
-  //   const nonce = localStorage.getItem(`nonce${playerAddress}`)
-  //   const move = localStorage.getItem(`move${playerAddress}`)
-
-  //    const jsonPayload = JSON.stringify({
-  //      method: 'reveal',
-  //      gameId: game.id,
-  //      move,
-  //      nonce
-  //    })
-
-  //  try {
-  //    const tx = await addInput(
-  //      JSON.stringify(jsonPayload),
-  //      dappAddress,
-  //      rollups
-  //    )
- 
-  //    const res = await tx.wait(1)
-  //    if (res) {
-  //      setRevealing(false)
-  //     //  setRevealed(true)
-  //      toast.success('Move revealed successfully!')
-  //    }
-  //  } catch (error) {
-  //    setRevealing(false)
-  //  }
-
-  // }
-
-  // const reset = () => {
-  //   setRevealed(false)
-  // }
-
-  // const transfer = async () => {
-
-  //    const jsonPayload = JSON.stringify({
-  //     method: 'withdraw',
-  //     args: {
-  //       amount: ethers.utils.parseEther(String(game.bettingAmount))
-  //     }
-  //   })
-
-
-
-  //   await addInput(JSON.stringify(jsonPayload), dappAddress, rollups)
-  // }
-
-  // const depositHandler = async () => {
-  //   if (!game.gameSettings.bet) return toast.error('Not a betting game')
-
-  //   try {
-  //     await sendEther(dappAddress, game.id, game.bettingAmount, rollups)
-  //     setDeposited(true)
-  //     setTimeout(joinGame, 7000)
-  
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
-
-  // }
-
-
- 
-
-
-  // useEffect(() => {
-  //   setRollCount((prevCount) => prevCount + 1)
-  // }, [result])
-
-
-  // useEffect(() => {
-  //   if (canRollDice) {
-  //     rollDice()
-  //   }
-  // }, [canRollDice])
-
-  // useEffect(() => {
-    
-  //   if (game?.rollOutcome && game?.rollOutcome !== 0) {
-  //     console.log(game?.rollOutcome)
-  //     setIsRolling(true)
-
-  //     const interval = setInterval(() => {
-  //       diceRollSound?.play()
-  //       setResult(Math.floor(Math.random() * 6) + 1)
-  //     }, 80)
-
-  //     // Stop rolling after a certain time and show the final result
-  //     setTimeout(() => {
-  //       clearInterval(interval)
-        
-  //       setResult(game?.rollOutcome)
-  //       setIsRolling(false)
-  //       setCanRollDice(false)
-  //     }, 4000)
-
-  //     return () => clearInterval(interval)
-  //   } else {
-  //     setResult(1)
-  //   }
-  // }, [game?.rollOutcome, game?.dateCreated, diceRollSound])
-
-  //  useEffect(() => {
-  //    if (game?.status === 'Ended') {
-  //     setGameEnded(true)
-  //    }
-  //  }, [game?.status, game?.winner])
-console.log(game)
+}, [playError])
 
   return (
     <div className="flex flex-col justify-center">
@@ -299,22 +122,7 @@ console.log(game)
       </button>
 
       <div className="flex flex-col justify-center">
-        {/* {game &&
-          game.status === 'New' &&
-          game.gameSettings.bet &&
-          wallet &&
-          !deposited &&
-          !game.commitPhase &&
-          !game.revealPhase && (
-            <div className="flex justify-center">
-              <Button className="my-6" onClick={depositHandler}>
-                Deposit
-              </Button>
-            </div>
-          )} */}
-        {/* <Button className="my-6" onClick={depositHandler}>
-          Deposit
-        </Button> */}
+     
         {/* {game &&
           game.status === 'In Progress' &&
           !game.commitPhase &&
@@ -331,59 +139,21 @@ console.log(game)
           (
             <div className="flex justify-center">
               <Button
-                disabled={joining || game[10].some(
+                disabled={joinPending || game[10].some(
                   (participant: any) =>
                     participant.player === address
                 )}
               onClick={joinGame} className="mb-10" type="button">
-                {joining ? 'Joining ...' : game[10].some(
+                {joinPending ? 'Joining ...' : game[10].some(
                 (participant: any) =>
                   participant.player === address
               ) ? 'Joined' : 'Join Game'}
               </Button>
             </div>
           )}
-        {/* <span onClick={test}>Test</span> */}
-        <div className="flex justify-center">
-          {/* <Button
-            onClick={commit}
-            className={`
-              w-[200px]
-              ${
-              !wallet ||
-              revealMove ||
-              !players.includes(wallet.accounts[0].address) ||
-              game?.activePlayer === wallet.accounts[0].address ||
-              (game &&
-                !game?.commitPhase &&
-                game?.participants &&
-                game?.participants.length) ||
-              game?.participants.some(
-                (participant: any) =>
-                  participant.playerAddress === wallet.accounts[0].address &&
-                  participant.commitment !== null
-              )
-              ? 'hidden'
-              : ''
-            }
-            `}
-          >
-            {commiting ? 'Commiting ...' : 'Commit'}
-          </Button> */}
-        </div>
+       
 
-        <div className="flex justify-center">
-          {/* <Button
-            onClick={reveal}
-            className={`w-[200px] ${revealMove ? '' : 'hidden'}`}
-            disabled={!revealMove || revealing}
-          >
-            {revealing ? 'Revealing ....' : 'Reveal'}
-          </Button> */}
-        </div>
       </div>
-      {/* <Button onClick={sendRelayAddress}>Set Relay Address</Button>
-      <Button onClick={transfer}>Transfer</Button> */}
     </div>
   )
 }
