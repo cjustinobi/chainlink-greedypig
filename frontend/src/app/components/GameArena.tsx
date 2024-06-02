@@ -59,7 +59,7 @@ const GameArena = () => {
           <Dice game={game} />
         </div>
         <div className="flex flex-col items-center gap-4 md:gap-6">
-          {/* <LeaderBoard game={game} /> */}
+          <LeaderBoard game={game} />
         </div>
       </div>
       <Settings />
