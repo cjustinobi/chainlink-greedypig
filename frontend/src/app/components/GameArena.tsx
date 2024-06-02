@@ -1,5 +1,5 @@
 import LeaderBoard from './Leaderboard'
-import { dappAddress, shortenAddress } from '@/lib/utils'
+import { shortenAddress } from '@/lib/utils'
 
 
 import {useMemo, memo, useCallback, useEffect, useState } from 'react'
@@ -48,59 +48,6 @@ const GameArena = () => {
 
   if (error) return <div>Error: {error.shortMessage || error.message}</div>;
   if(isError)console.log(error)
-  // console.log("result ", game);
-
-  // const dispatch = useDispatch()
-
-  // const [game, setGame] = useState<any>()
-
-  // const dispatchGameData = useCallback((game: any) => {
-  //   console.log('gamearena game', game)
-  //   setGame(game)
-  //   // dispatch({ type: 'games/setGame', payload: game })
-  // }, [])
-
-  // useEffect(() => {
-
-  // const gameId = window.location.pathname.split('/').pop()
-  // if (loading) {
-  //   console.log('Loading notices')
-  // }
-
-  // if (data) {
-  // const latestNotice = data.notices.edges[0]
-
-  // if (latestNotice) {
-
-  // if (gameId) {
-  // const game = JSON.parse(noticePayload)
-  //   .find((game: any) => game.id === gameId)
-
-  // if (game) {
-  //   console.log('Game found:', game)
-  //   dispatchGameData(game)
-  // }
-  // }
-  // }
-  // }
-  // }, [data, dispatchGameData, error, loading])
-
-  // Handle inputAdded event to trigger refetch
-  // useEffect(() => {
-
-  //   const handleInputAdded = () => {
-  //     console.log('Input added, refetching notices')
-  //     refetch()
-  //   }
-
-  //   // Add event listener for inputAdded event
-  //   rollups?.inputContract.on('InputAdded', handleInputAdded)
-
-  //   // Cleanup function to remove event listener
-  //   return () => {
-  //     rollups?.inputContract.off('InputAdded', handleInputAdded)
-  //   }
-  // }, [rollups, refetch])
 
   return (
     <div className="py-6 sm:py-8 lg:py-12">
@@ -112,7 +59,7 @@ const GameArena = () => {
           <Dice game={game} />
         </div>
         <div className="flex flex-col items-center gap-4 md:gap-6">
-          <LeaderBoard game={game} />
+          {/* <LeaderBoard game={game} /> */}
         </div>
       </div>
       <Settings />

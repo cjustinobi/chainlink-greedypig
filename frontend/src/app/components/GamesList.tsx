@@ -12,7 +12,7 @@ console.log('rrr ', games)
 
   return (
     <div className="flex">
-      {games && games.map((game: any) => <GameCard game={game.result} key={game.result[0]} />)}
+      {/* {games && games.map((game: any) => <GameCard game={game.result} key={game.result[0]} />)} */}
     </div>)
 };
 
