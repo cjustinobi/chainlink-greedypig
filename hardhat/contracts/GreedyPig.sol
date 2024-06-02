@@ -245,7 +245,7 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
             game.bet,
             game.status,
             playerArray,
-            game.players[game.currentPlayerIndex]
+            game.players.length > 0 ? game.players[game.currentPlayerIndex] : address(0)
         );
     }
 
