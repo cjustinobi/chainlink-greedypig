@@ -61,7 +61,7 @@ const LeaderBoard: FC<LeaderBoardProps> = ({ game }) => {
         </span>
       </div>
 
-      {game && game[9].length ? (
+      {game && game[8].length ? (
         <div className="flex-auto px-0 pt-0 pb-2">
           <div className="p-0 overflow-x-auto">
             <table className="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
@@ -80,8 +80,8 @@ const LeaderBoard: FC<LeaderBoardProps> = ({ game }) => {
                 </tr>
               </thead>
               <tbody>
-                {game[9].length &&
-                  game[9].map((player: any, i: number) => (
+                {game[8].length &&
+                  game[8].map((player: any, i: number) => (
                     <tr key={i}>
                       {/* <tr key={i} className={player.username === activePlayer ? 'bg-gray-100' : ''}> */}
                       <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">

@@ -54,7 +54,7 @@ const GameArena = () => {
       <div className="grid gap-4 md:grid-cols-2 md:gap-8">
         <div className="flex flex-col items-center gap-4  px-8 py-6 md:gap-6">
           {game[0] && (
-            <p>{game[10]}'s turn</p>
+            <p>{game[9]}'s turn</p>
           )}
           <Dice game={game} />
         </div>

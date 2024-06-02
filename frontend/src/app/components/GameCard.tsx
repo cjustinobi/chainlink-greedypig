@@ -66,7 +66,7 @@ const GameCard = ({ game }: GameCardProps) => {
           onClick={() => handleNavigate(game[0], "join")}
           className="mt-4 text-xl w-full text-white bg-indigo-600 py-2 rounded-xl shadow-lg"
         >
-          {game[9].some((participant: any) => participant.player === address)
+          {game[8].some((participant: any) => participant.player === address)
             ? "Joined"
             : "Join Game"}
         </button>

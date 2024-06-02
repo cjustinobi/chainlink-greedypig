@@ -144,7 +144,7 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
       <div className="flex flex-col justify-center">
         {game &&
           game[7] === 1 &&
-          game[9].some(
+          game[8].some(
             (participant: any) => participant.player === address
           ) && (
             <div className="flex justify-center">
@@ -158,7 +158,7 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
             <Button
               disabled={
                 joinPending ||
-                game[9].some(
+                game[8].some(
                   (participant: any) => participant.player === address
                 )
               }
@@ -168,7 +168,7 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
             >
               {joinPending
                 ? "Joining ..."
-                : game[9].some(
+                : game[8].some(
                     (participant: any) => participant.player === address
                   )
                 ? "Joined"
