@@ -36,6 +36,7 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
         uint turnScore;
         uint totalScore;
         bool deposited;
+        bool winner;
     }
     
     mapping(uint => Game) internal  games;
@@ -129,7 +130,8 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
             player: msg.sender,
             turnScore: 0,
             totalScore: 0,
-            deposited: true
+            deposited: true,
+            winner: false
         });
 
         game.players.push(msg.sender); // used for player tracking.
@@ -166,6 +168,7 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
             if (participant.turnScore + participant.totalScore >= game.targetScore) {
                 game.status = GameStatus.Ended;
                 participant.totalScore += participant.turnScore;
+                participant.winner = true;
                 game.winner = msg.sender;
                 transferToWinner(_gameId);
                 emit GameEnded(_gameId, msg.sender);
@@ -213,7 +216,6 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
     uint rollOutcome,
     bool bet,
     GameStatus status,
-    address winner,
     PlayerInfo[] memory players,
     address activePlayer
     ) {
@@ -228,7 +230,8 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
                 player: playerAddress,
                 turnScore: player.turnScore,
                 totalScore: player.totalScore,
-                deposited: player.deposited
+                deposited: player.deposited,
+                winner: player.winner
             });
         }
 
@@ -241,7 +244,6 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
             game.rollOutcome,
             game.bet,
             game.status,
-            game.winner,
             playerArray,
             game.players[game.currentPlayerIndex]
         );
