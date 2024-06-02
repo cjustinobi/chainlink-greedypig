@@ -1,6 +1,7 @@
 import { capitalize } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import { IGame } from '@/interfaces'
+import { useAccount } from 'wagmi'
 
 interface GameCardProps {
   game: IGame
@@ -9,6 +10,7 @@ interface GameCardProps {
 const GameCard = ({ game }: GameCardProps) => {
 
   const router = useRouter()
+  const { address } = useAccount();
 
   const handleNavigate = (id: string, action: string) => {
     router.push(`/games/${id}?action=${action}`)
@@ -62,12 +64,15 @@ const GameCard = ({ game }: GameCardProps) => {
           </span>
           <p>Dice{game[7]}</p>
         </div>
-        {game[7] === 0 && <button
+        <button
           onClick={() => handleNavigate(game[0], 'join')}
           className="mt-4 text-xl w-full text-white bg-indigo-600 py-2 rounded-xl shadow-lg"
         >
-          Join
-        </button>}
+          {game[10].some(
+                (participant: any) =>
+                  participant.player === address
+              ) ? 'Joined' : 'Join Game'}
+        </button>
       </div>
     </div>
   );
