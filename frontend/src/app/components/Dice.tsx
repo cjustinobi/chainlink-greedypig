@@ -7,7 +7,7 @@ import Die5 from '@/assets/img/dice_5.png'
 import Die6 from '@/assets/img/dice_6.png'
 import Image from 'next/image'
 import useAudio from '@/hooks/useAudio'
-import { formatNumber } from '@/lib/utils'
+import { MAP_GAME_STATUS, formatNumber } from '@/lib/utils'
 import toast from 'react-hot-toast'
 import Button from './Button'
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from 'wagmi'
@@ -45,7 +45,8 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
   const [gameEnded, setGameEnded] = useState<boolean>(false)
 
   const { address } = useAccount();
-  const { data: hash, error: joinError, isPending, writeContract } = useWriteContract();
+  const { data: hash, error: joinError, writeContract } = useWriteContract();
+  const { data: playHash, error: playError, writeContract: playContract } = useWriteContract();
 
 
   const joinGame = async () => {
@@ -114,50 +115,22 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
 
   const playGame = async (response: string) => {
 
-    // if (gameEnded || game.status === 'Ended') {
-    //   return toast.error('Game has ended')
-    // }
+    if (MAP_GAME_STATUS(game[7]) === 'ended') {
+      return toast.error('Game has ended')
+    }
 
-    // if (game.commitPhase || game.revealPhase) {
-    //   return toast.error('Can\'t play game now')
-    // }
+    playContract({
+      ...wagmiContractConfig,
+      functionName: 'rollDice',
+      args: [game[0]],
+      value: toBigInt(game[4])
+    });
+  
+  }
 
-    // const playerAddress = wallet?.accounts[0].address
-
-    // if (!playerAddress) return toast.error('Connect account')
-
-    // if (game.activePlayer !== playerAddress) {
-    //   return toast.error('Not your turn')
-    // }
-
-    // if (players.length >= 2) {
-
-      // try {
-
-      //   const jsonPayload = JSON.stringify({
-      //     method: 'playGame',
-      //     data: {
-      //       gameId: game.id,
-      //       playerAddress,
-      //       response,
-      //       commitment: await generateCommitment(playerAddress)
-      //     },
-      //   })
-
-      //   const tx = await addInput(
-      //     JSON.stringify(jsonPayload),
-      //     dappAddress,
-      //     rollups
-      //   )
-
-      //   const result = await tx.wait(1)
-      //   console.log('tx for the game play ', result)
-      // } catch (error) {
-      //   console.error('Error during game play: ', error)
-      // }
-    // } else {
-    //   toast.error('Not enough players to play')
-    // }
+  if (playError) {
+    console.log(playError)
+    toast.error('playError')
   }
 
 

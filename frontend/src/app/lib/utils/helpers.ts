@@ -13,6 +13,8 @@ export const formatNumber = (value: number) => {
   return formatUnits(parseUnits(value.toString(), 0), 0)
 }
 
+
+
 // export const hasDeposited = (bettingAmount: number, reports: any) => {
 
 //   const hasDeposited = reports && parseInt(utils.formatEther(reports[0].ether)) === bettingAmount
