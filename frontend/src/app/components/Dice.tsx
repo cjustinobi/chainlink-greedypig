@@ -1,110 +1,103 @@
-import { FC, useEffect, useState } from 'react'
-import Die1 from '@/assets/img/dice_1.png'
-import Die2 from '@/assets/img/dice_2.png'
-import Die3 from '@/assets/img/dice_3.png'
-import Die4 from '@/assets/img/dice_4.png'
-import Die5 from '@/assets/img/dice_5.png'
-import Die6 from '@/assets/img/dice_6.png'
-import Image from 'next/image'
-import useAudio from '@/hooks/useAudio'
-import { MAP_GAME_STATUS, formatNumber } from '@/lib/utils'
-import toast from 'react-hot-toast'
-import Button from './Button'
+import { FC, useEffect, useState } from "react";
+import Die1 from "@/assets/img/dice_1.png";
+import Die2 from "@/assets/img/dice_2.png";
+import Die3 from "@/assets/img/dice_3.png";
+import Die4 from "@/assets/img/dice_4.png";
+import Die5 from "@/assets/img/dice_5.png";
+import Die6 from "@/assets/img/dice_6.png";
+import Image from "next/image";
+import useAudio from "@/hooks/useAudio";
+import { MAP_GAME_STATUS, formatNumber } from "@/lib/utils";
+import toast from "react-hot-toast";
+import Button from "./Button";
 import {
   useAccount,
   useWaitForTransactionReceipt,
   useWriteContract,
   useWatchContractEvent,
 } from "wagmi";
-import { wagmiContractConfig } from '@/lib/wagmi'
-import useGames from '@/hooks/useGames'
-import { toBigInt } from 'ethers'
+import { wagmiContractConfig } from "@/lib/wagmi";
+import useGames from "@/hooks/useGames";
+import { toBigInt } from "ethers";
 
-const die = [Die1, Die2, Die3, Die4, Die5, Die6]
+const die = [Die1, Die2, Die3, Die4, Die5, Die6];
 
 interface ApparatusProps {
-  game: any
+  game: any;
 }
 
-
 const Dice: FC<ApparatusProps> = ({ game }) => {
-
   // const diceRollSound = useAudio('/sounds/diceRoll.mp3')
-  const { gameIds } = useGames()
+  const { gameIds } = useGames();
 
-
-  const [rollCount, setRollCount] = useState<number>(0)
-  const [isRolling, setIsRolling] = useState<boolean>(false)
-  const [result, setResult] = useState<number>(1)
-  const [canRollDice, setCanRollDice] = useState<boolean>(false)
-  const [joining, setJoining] = useState<boolean>(false)
-  const [gameEnded, setGameEnded] = useState<boolean>(false)
+  const [rollCount, setRollCount] = useState<number>(0);
+  const [isRolling, setIsRolling] = useState<boolean>(false);
+  const [result, setResult] = useState<number>(1);
+  const [canRollDice, setCanRollDice] = useState<boolean>(false);
+  const [joining, setJoining] = useState<boolean>(false);
+  const [gameEnded, setGameEnded] = useState<boolean>(false);
 
   const { address } = useAccount();
-  const { data: hash, error: joinError, isPending: joinPending, writeContract } = useWriteContract();
-  const { data: playHash, error: playError, writeContract: playContract } = useWriteContract();
-
+  const {
+    data: hash,
+    error: joinError,
+    isPending: joinPending,
+    writeContract,
+  } = useWriteContract();
+  const {
+    data: playHash,
+    error: playError,
+    writeContract: playContract,
+  } = useWriteContract();
 
   const joinGame = async () => {
+    console.log(address);
 
-    console.log(address)
-
-    const gameId = formatNumber(game[0])
-    
-  
+    const gameId = formatNumber(game[0]);
 
     writeContract({
       ...wagmiContractConfig,
-      functionName: 'joinGame',
+      functionName: "joinGame",
       args: [gameId],
-      value: toBigInt(game[4])
+      value: toBigInt(game[4]),
     });
-  }
-
-
+  };
 
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
       hash,
     });
 
-    // const { isLoading: rollLoading, isSuccess: rollSuccess } =
-    // useWaitForTransactionReceipt({
-    //   playHash,
-    // });
+  // const { isLoading: rollLoading, isSuccess: rollSuccess } =
+  // useWaitForTransactionReceipt({
+  //   playHash,
+  // });
 
-    console.log('playhash ', playHash)
+  console.log("playhash ", playHash);
 
-
-  const rollDice = async () => {
-   
-    
-  }
+  const rollDice = async () => {};
 
   const pass = async () => {};
 
   const playGame = async () => {
-
-    if (MAP_GAME_STATUS(game[7]) === 'ended') {
-      return toast.error('Game has ended')
+    if (MAP_GAME_STATUS(game[7]) === "ended") {
+      return toast.error("Game has ended");
     }
 
     playContract({
       ...wagmiContractConfig,
-      functionName: 'rollDice',
-      args: [game[0]]
+      functionName: "rollDice",
+      args: [game[0]],
     });
-  
-  }
+  };
 
-
-    useWatchContractEvent({
-      ...wagmiContractConfig,
-      eventName: "PlayerRoll",
-      onLogs(logs) {
+  useWatchContractEvent({
+    ...wagmiContractConfig,
+    eventName: "PlayerRoll",
+    onLogs(logs) {
       console.log("player roilled!", logs);
-      },
-    });
+    },
+  });
 
   useWatchContractEvent({
     ...wagmiContractConfig,
@@ -114,23 +107,23 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
     },
   });
 
-console.log(game)
+  console.log(game);
 
-useEffect(() => {
-  if (joinError) {
-    console.log('joinerror ', joinError)
-  }
-  if (isConfirmed) {
-    toast.success('Successfully joined')
-  }
-}, [joinError, isConfirmed])
+  useEffect(() => {
+    if (joinError) {
+      console.log("joinerror ", joinError);
+    }
+    if (isConfirmed) {
+      toast.success("Successfully joined");
+    }
+  }, [joinError, isConfirmed]);
 
-useEffect(() => {
-  if (playError) {
-    console.log(playError)
-    toast.error('playError')
-  }
-}, [playError])
+  useEffect(() => {
+    if (playError) {
+      console.log(playError);
+      toast.error("playError");
+    }
+  }, [playError]);
 
   return (
     <div className="flex flex-col justify-center">
@@ -151,7 +144,7 @@ useEffect(() => {
       <div className="flex flex-col justify-center">
         {game &&
           game[7] === 1 &&
-          game[10].some(
+          game[9].some(
             (participant: any) => participant.player === address
           ) && (
             <div className="flex justify-center">
@@ -165,7 +158,7 @@ useEffect(() => {
             <Button
               disabled={
                 joinPending ||
-                game[10].some(
+                game[9].some(
                   (participant: any) => participant.player === address
                 )
               }
@@ -175,7 +168,7 @@ useEffect(() => {
             >
               {joinPending
                 ? "Joining ..."
-                : game[10].some(
+                : game[9].some(
                     (participant: any) => participant.player === address
                   )
                 ? "Joined"
@@ -186,6 +179,6 @@ useEffect(() => {
       </div>
     </div>
   );
-}
+};
 
-export default Dice
+export default Dice;

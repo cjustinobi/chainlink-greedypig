@@ -1,20 +1,17 @@
-import { FC, useCallback, useEffect, useState } from 'react'
-import { EmptyPage } from '@/components/EmptyPage'
-import { dappAddress, shortenAddress } from '@/lib/utils'
-import useAudio from '@/hooks/useAudio'
-import toast from 'react-hot-toast'
-
+import { FC, useCallback, useEffect, useState } from "react";
+import { EmptyPage } from "@/components/EmptyPage";
+import { dappAddress, shortenAddress } from "@/lib/utils";
+import useAudio from "@/hooks/useAudio";
+import toast from "react-hot-toast";
 
 interface LeaderBoardProps {
-  game: any
+  game: any;
 }
 
 const LeaderBoard: FC<LeaderBoardProps> = ({ game }) => {
   // const gameOverSound = useAudio('/sounds/gameOver.mp3')
- 
-  const [delayedGame, setDelayedGame] = useState<any>(null)
 
-
+  const [delayedGame, setDelayedGame] = useState<any>(null);
 
   // useEffect(() => {
   //   const timeoutId = setTimeout(() => {
@@ -47,7 +44,6 @@ const LeaderBoard: FC<LeaderBoardProps> = ({ game }) => {
   // }, [delayedGame?.status, delayedGame?.winner])
   // }, [delayedGame?.status, delayedGame?.winner, gameOverSound])
 
-
   // useEffect(() => {
   //   if (game?.status === 'Ended') {
   //     gameOverSound?.play()
@@ -59,18 +55,13 @@ const LeaderBoard: FC<LeaderBoardProps> = ({ game }) => {
   return (
     <div className="relative flex flex-col w-full min-w-0 break-words border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border mb-4 draggable">
       <div className="p-6 pb-0 mb-0 rounded-t-2xl">
-        <h1 className="font-bold text-2xl mb-10">
-          {game[1]} Leaderboard
-        </h1>
+        <h1 className="font-bold text-2xl mb-10">{game[1]} Leaderboard</h1>
         <span>
-          Winning score:{' '}
-          <span className="font-bold">
-            {/* {game[]} */}
-          </span>
+          Winning score: <span className="font-bold">{/* {game[]} */}</span>
         </span>
       </div>
 
-      {game && game[10].length ? (
+      {game && game[9].length ? (
         <div className="flex-auto px-0 pt-0 pb-2">
           <div className="p-0 overflow-x-auto">
             <table className="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
@@ -79,7 +70,7 @@ const LeaderBoard: FC<LeaderBoardProps> = ({ game }) => {
                   <th className="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
                     Player
                   </th>
-                  
+
                   <th className="px-6 py-3 font-bold text-left uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xxs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">
                     Turn Score
                   </th>
@@ -89,8 +80,8 @@ const LeaderBoard: FC<LeaderBoardProps> = ({ game }) => {
                 </tr>
               </thead>
               <tbody>
-                {game[10].length &&
-                  game[10].map((player: any, i: number) => (
+                {game[9].length &&
+                  game[9].map((player: any, i: number) => (
                     <tr key={i}>
                       {/* <tr key={i} className={player.username === activePlayer ? 'bg-gray-100' : ''}> */}
                       <td className="p-2 align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
@@ -109,7 +100,7 @@ const LeaderBoard: FC<LeaderBoardProps> = ({ game }) => {
                           </div>
                         </div>
                       </td>
-                      
+
                       <td className="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
                         <span className="font-semibold leading-tight text-xs text-slate-400">
                           {Number(player.turnScore)}
@@ -130,7 +121,7 @@ const LeaderBoard: FC<LeaderBoardProps> = ({ game }) => {
         <EmptyPage text="No Participant" />
       )}
     </div>
-  )
-}
+  );
+};
 
-export default LeaderBoard
+export default LeaderBoard;
