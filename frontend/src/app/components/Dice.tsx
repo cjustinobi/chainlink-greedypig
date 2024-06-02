@@ -26,9 +26,7 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
 
   // const diceRollSound = useAudio('/sounds/diceRoll.mp3')
   const { gameIds } = useGames()
-  // const players = useSelector((state: any) =>
-  //   selectParticipantAddresses(state.games)
-  // )
+
 
   const [rollCount, setRollCount] = useState<number>(0)
   const [isRolling, setIsRolling] = useState<boolean>(false)
@@ -65,15 +63,18 @@ const Dice: FC<ApparatusProps> = ({ game }) => {
       hash,
     });
 
-
+    // const { isLoading: rollLoading, isSuccess: rollSuccess } =
+    // useWaitForTransactionReceipt({
+    //   hash,
+    // });
 
 
   const rollDice = async () => {
    
-
+    
   }
 
-  const playGame = async (response: string) => {
+  const playGame = async () => {
 
     if (MAP_GAME_STATUS(game[7]) === 'ended') {
       return toast.error('Game has ended')
@@ -109,7 +110,7 @@ useEffect(() => {
     <div className="flex flex-col justify-center">
       <button
         className={`hover:scale-105 active:scale-100 duration-300 md:w-auto w-[200px]`}
-        onClick={() => playGame('yes')}
+        onClick={playGame}
         disabled={isRolling}
       >
         {result !== null && (
@@ -125,9 +126,9 @@ useEffect(() => {
      
         {/* {game &&
           game.status === 'In Progress' &&
-          !game.commitPhase &&
-          game?.activePlayer === wallet?.accounts[0].address &&
-          !game.revealPhase && (
+
+          game?.activePlayer === address &&
+  (
             <div className="flex justify-center">
               <Button className="mt-6" onClick={() => playGame('no')}>
                 Pass

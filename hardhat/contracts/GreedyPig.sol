@@ -50,12 +50,12 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
 
     // chainlink
     event RequestSent(uint256 requestId, uint32 numWords);
-    event RequestFulfilled(uint256 requestId, uint256[] randomWords);
+    event RequestFulfilled(uint256 requestId, uint256 randomWord);
 
     struct RequestStatus {
         bool fulfilled; // whether the request has been successfully fulfilled
         bool exists; // whether a requestId exists
-        uint256[] randomWords;
+        uint256 randomWord;
     }
     mapping(uint256 => RequestStatus)
         public s_requests; /* requestId --> requestStatus */
@@ -287,10 +287,11 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
             })
         );
         s_requests[requestId] = RequestStatus({
-            randomWords: new uint256[](0),
             exists: true,
-            fulfilled: false
+            fulfilled: false,
+            randomWord: 0      
         });
+        
         requestIds.push(requestId);
         lastRequestId = requestId;
         emit RequestSent(requestId, numWords);
@@ -304,23 +305,22 @@ contract GreedyPig is VRFConsumerBaseV2Plus {
         require(s_requests[_requestId].exists, "request not found");
         s_requests[_requestId].fulfilled = true;
         uint256 randomNumber = _randomWords[0] % 6 + 1; // Generate number between 1 and 6
-        s_requests[_requestId].randomWords[0] = randomNumber;
-        emit RequestFulfilled(_requestId, _randomWords);
+        s_requests[_requestId].randomWord = randomNumber;
+        emit RequestFulfilled(_requestId, randomNumber);
     }
 
     function getRequestStatus(
         uint256 _requestId
-    ) public view returns (bool fulfilled, uint256[] memory randomWords) {
+    ) public view returns (bool fulfilled, uint256 randomWord) {
         require(s_requests[_requestId].exists, "request not found");
         RequestStatus memory request = s_requests[_requestId];
-        return (request.fulfilled, request.randomWords);
+        return (request.fulfilled, request.randomWord);
     }
 
     function getRandomNumber() private returns (uint256 randomNumber) {
        uint256 requestId =  requestRandomWords(false);
-       (bool fulfilled, uint256[] memory randomWords) = getRequestStatus(requestId);
-       require(randomWords.length > 0, "no random words available");
-       if(fulfilled) return randomWords[0];
+       (bool fulfilled, uint256 randomWord) = getRequestStatus(requestId);
+       if(fulfilled) return randomWord;
     }
 
 }
